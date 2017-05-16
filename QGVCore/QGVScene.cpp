@@ -31,10 +31,20 @@ License along with this library.
 #include <QGVNodePrivate.h>
 #include <iostream>
 
-QGVScene::QGVScene(const QString &name, QObject *parent) : QGraphicsScene(parent)
+QGVScene::QGVScene(const QString &name, QObject *parent, int descriptor_idx) : QGraphicsScene(parent)
 {
     _context = new QGVGvcPrivate(gvContext());
-    _graph = new QGVGraphPrivate(agopen(name.toLocal8Bit().data(), Agdirected, NULL));
+
+    Agdesc_t descriptor;
+    switch (descriptor_idx){
+    case 1: descriptor = Agdirected; break;
+    case 2: descriptor = Agstrictdirected; break;
+    case 3: descriptor =Agundirected; break;
+    case 4: descriptor = Agstrictundirected; break;
+    default: descriptor = Agdirected; break;
+    }
+
+    _graph = new QGVGraphPrivate(agopen(name.toLocal8Bit().data(), descriptor, NULL));
     //setGraphAttribute("fontname", QFont().family());
 }
 

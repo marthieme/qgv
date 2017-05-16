@@ -37,7 +37,7 @@ class QGVCORE_EXPORT QGVScene : public QGraphicsScene
     Q_OBJECT
 public:
 
-    explicit QGVScene(const QString &name, QObject *parent = 0);
+    explicit QGVScene(const QString &name, QObject *parent = 0, int descriptor_idx = 0);
     ~QGVScene();
 
     void setGraphAttribute(const QString &name, const QString &value);
