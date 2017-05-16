@@ -191,9 +191,9 @@ void QGVScene::loadLayout(const QString &text)
     update();
 }
 
-void QGVScene::applyLayout()
+void QGVScene::applyLayout(const QString &engine)
 {
-    if(gvLayout(_context->context(), _graph->graph(), "dot") != 0)
+    if(gvLayout(_context->context(), _graph->graph(), engine.toLocal8Bit().constData()) != 0)
     {
         /*
          * Si plantage ici :

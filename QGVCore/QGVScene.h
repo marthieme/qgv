@@ -55,7 +55,7 @@ public:
     void setRootNode(QGVNode *node);
 
     void loadLayout(const QString &text);
-    void applyLayout();
+    void applyLayout(const QString &engine = "dot");
     void clear();
 
 
