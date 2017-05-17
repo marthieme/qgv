@@ -26,6 +26,17 @@ License along with this library.
 QGVNode::QGVNode(QGVNodePrivate *node, QGVScene *scene): _scene(scene), _node(node)
 {
     setFlag(QGraphicsItem::ItemIsSelectable, true);
+    setAcceptHoverEvents(true);
+}
+
+void QGVNode::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+{
+    _scene->nodeHoverEnter(this);
+}
+
+void QGVNode::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+{
+    _scene->nodeHoverLeave(this);
 }
 
 QGVNode::~QGVNode()

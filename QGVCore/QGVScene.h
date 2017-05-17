@@ -58,7 +58,11 @@ public:
     void applyLayout(const QString &engine = "dot");
     void clear();
 
+    void nodeHoverEnter(QGVNode *node);
+    void nodeHoverLeave(QGVNode *node);
 
+
+    void renderPng(const QString &path);
 signals:
     void nodeContextMenu(QGVNode* node);
     void nodeDoubleClick(QGVNode* node);
@@ -70,9 +74,11 @@ signals:
     void subGraphDoubleClick(QGVSubGraph* graph);
 
     void graphContextMenuEvent();
-    
-public slots:
 
+    void nodeHoverEnterSignal(QGVNode *node);
+    void nodeHoverLeaveSignal(QGVNode *node);
+
+        
 protected:
     virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent * contextMenuEvent);
     virtual void mouseDoubleClickEvent(QGraphicsSceneMouseEvent * mouseEvent);

@@ -236,9 +236,13 @@ void QGVScene::applyLayout(const QString &engine)
         item->setPos(QGVCore::centerToOrigin(QGVCore::toPoint(xlabel->pos, QGVCore::graphHeight(_graph->graph())), xlabel->dimen.x, -4));
     }
 
-    gvFreeLayout(_context->context(), _graph->graph());
+//    gvFreeLayout(_context->context(), _graph->graph());
 
     update();
+}
+
+void QGVScene::renderPng(const QString &path){
+    qDebug() << "render:" << gvRenderFilename(_context->context(), _graph->graph(), "png", path.toLocal8Bit().constData());
 }
 
 void QGVScene::clear()
@@ -248,6 +252,16 @@ void QGVScene::clear()
     _edges.clear();
     _subGraphs.clear();
     QGraphicsScene::clear();
+}
+
+void QGVScene::nodeHoverEnter(QGVNode *node)
+{
+    emit nodeHoverEnterSignal(node);
+}
+
+void QGVScene::nodeHoverLeave(QGVNode *node)
+{
+    emit nodeHoverLeaveSignal(node);
 }
 
 #include <QGraphicsSceneContextMenuEvent>

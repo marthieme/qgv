@@ -50,16 +50,16 @@ public:
     {
         return Type;
     }
+    void updateLayout();
 
 private:
     friend class QGVScene;
     friend class QGVSubGraph;
-    void updateLayout();
     QGVNode(QGVNodePrivate* node, QGVScene *scene);
 
-		// Not implemented in QGVNode.cpp
-//		QPainterPath makeShape(Agnode_t* node) const;
-//		QPolygonF makeShapeHelper(Agnode_t* node) const;
+    // Not implemented in QGVNode.cpp
+    //		QPainterPath makeShape(Agnode_t* node) const;
+    //		QPolygonF makeShapeHelper(Agnode_t* node) const;
 
     QPainterPath _path;
     QPen _pen;
@@ -68,6 +68,12 @@ private:
 
     QGVScene *_scene;
     QGVNodePrivate* _node;
+
+
+    // QGraphicsItem interface
+protected:
+    void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
+    void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
 };
 
 
