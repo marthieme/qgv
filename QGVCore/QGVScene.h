@@ -61,9 +61,11 @@ public:
     void nodeHoverEnter(QGVNode *node);
     void nodeHoverLeave(QGVNode *node);
 
-
     void renderPng(const QString &path);
+    void freeLayout();
+
 signals:
+
     void nodeContextMenu(QGVNode* node);
     void nodeDoubleClick(QGVNode* node);
 
@@ -78,12 +80,14 @@ signals:
     void nodeHoverEnterSignal(QGVNode *node);
     void nodeHoverLeaveSignal(QGVNode *node);
 
-        
 protected:
+
     virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent * contextMenuEvent);
     virtual void mouseDoubleClickEvent(QGraphicsSceneMouseEvent * mouseEvent);
     virtual void drawBackground(QPainter * painter, const QRectF & rect);
+
 private:
+
     friend class QGVNode;
     friend class QGVEdge;
     friend class QGVSubGraph;

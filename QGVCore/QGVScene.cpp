@@ -215,8 +215,8 @@ void QGVScene::applyLayout(const QString &engine)
     }
 
     //Debug output
-		//gvRenderFilename(_context->context(), _graph->graph(), "canon", "debug.dot");
-		//gvRenderFilename(_context->context(), _graph->graph(), "png", "debug.png");
+    //gvRenderFilename(_context->context(), _graph->graph(), "canon", "debug.dot");
+    //gvRenderFilename(_context->context(), _graph->graph(), "png", "debug.png");
 
     //Update items layout
     foreach(QGVNode* node, _nodes)
@@ -236,9 +236,16 @@ void QGVScene::applyLayout(const QString &engine)
         item->setPos(QGVCore::centerToOrigin(QGVCore::toPoint(xlabel->pos, QGVCore::graphHeight(_graph->graph())), xlabel->dimen.x, -4));
     }
 
-//    gvFreeLayout(_context->context(), _graph->graph());
+    //    gvFreeLayout(_context->context(), _graph->graph());
 
     update();
+}
+
+void QGVScene::freeLayout(){
+    gvFreeLayout(_context->context(), _graph->graph());
+    foreach (QGraphicsItem* item, items()) {
+        removeItem(item);
+    }
 }
 
 void QGVScene::renderPng(const QString &path){
