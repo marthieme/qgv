@@ -41,7 +41,7 @@ public:
     QRectF boundingRect() const;
     void paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget = 0);
     void setAttribute(const QString &label, const QString &value);
-    QString getAttribute(const QString &name) const;
+    QString getAttribute(const QString &name, const QString defaultValue = QString()) const;
 
     void setIcon(const QImage &icon);
 

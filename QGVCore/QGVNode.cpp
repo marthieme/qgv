@@ -101,12 +101,12 @@ void QGVNode::setAttribute(const QString &name, const QString &value)
     agsafeset(_node->node(), name.toLocal8Bit().data(), value.toLocal8Bit().data(), empty);
 }
 
-QString QGVNode::getAttribute(const QString &name) const
+QString QGVNode::getAttribute(const QString &name, const QString defaultValue) const
 {
     char* value = agget(_node->node(), name.toLocal8Bit().data());
     if(value)
         return value;
-    return QString();
+    return defaultValue;
 }
 
 void QGVNode::setIcon(const QImage &icon)
@@ -129,7 +129,7 @@ void QGVNode::updateLayout()
 
     //Node path
     _path = QGVCore::toPath(ND_shape(_node->node())->name, (polygon_t*)ND_shape_info(_node->node()), width, height);
-    _pen.setWidth(1);
+    _pen.setWidth(getAttribute("borderWidth", "1").toInt());
 
     _brush.setStyle(QGVCore::toBrushStyle(getAttribute("style")));
     _brush.setColor(QGVCore::toColor(getAttribute("fillcolor")));
