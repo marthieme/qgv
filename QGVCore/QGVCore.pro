@@ -17,8 +17,13 @@ TARGET = QGVCore
 TEMPLATE = lib
 CONFIG += shared
 
-DESTDIR = ../lib
-DLLDESTDIR = ../bin
+CONFIG(release, debug|release){
+    DESTDIR = ../release/lib
+    DLLDESTDIR = ../release/bin
+} else {
+    DESTDIR = ../debug/lib
+    DLLDESTDIR = ../debug/bin
+}
 
 #GraphViz librairie
 !include(GraphViz.pri) {

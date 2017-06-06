@@ -62,6 +62,7 @@ public:
     void nodeHoverLeave(QGVNode *node);
 
     void renderPng(const QString &path);
+    void exportAsDotFormat(const QString &path);
     void freeLayout();
 
 signals:

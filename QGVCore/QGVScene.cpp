@@ -37,11 +37,11 @@ QGVScene::QGVScene(const QString &name, QObject *parent, int descriptor_idx) : Q
 
     Agdesc_t descriptor;
     switch (descriptor_idx){
-    case 1: descriptor = Agdirected; break;
-    case 2: descriptor = Agstrictdirected; break;
-    case 3: descriptor =Agundirected; break;
-    case 4: descriptor = Agstrictundirected; break;
-    default: descriptor = Agdirected; break;
+    case 1:  descriptor = Agdirected;         break;
+    case 2:  descriptor = Agstrictdirected;   break;
+    case 3:  descriptor = Agundirected;       break;
+    case 4:  descriptor = Agstrictundirected; break;
+    default: descriptor = Agdirected;         break;
     }
 
     _graph = new QGVGraphPrivate(agopen(name.toLocal8Bit().data(), descriptor, NULL));
@@ -233,15 +233,16 @@ void QGVScene::applyLayout(const QString &engine)
     if(xlabel)
     {
         QGraphicsTextItem *item = addText(xlabel->text);
-        item->setPos(QGVCore::centerToOrigin(QGVCore::toPoint(xlabel->pos, QGVCore::graphHeight(_graph->graph())), xlabel->dimen.x, -4));
+        item->setPos( QGVCore::centerToOrigin( QGVCore::toPoint(xlabel->pos, QGVCore::graphHeight(_graph->graph()) ), xlabel->dimen.x, -4) );
     }
 
-    //    gvFreeLayout(_context->context(), _graph->graph());
+//        gvFreeLayout(_context->context(), _graph->graph());
 
     update();
 }
 
 void QGVScene::freeLayout(){
+
     gvFreeLayout(_context->context(), _graph->graph());
     foreach (QGraphicsItem* item, items()) {
         removeItem(item);
@@ -249,7 +250,10 @@ void QGVScene::freeLayout(){
 }
 
 void QGVScene::renderPng(const QString &path){
-    qDebug() << "render:" << gvRenderFilename(_context->context(), _graph->graph(), "png", path.toLocal8Bit().constData());
+    /*qDebug() << "render:" << */gvRenderFilename(_context->context(), _graph->graph(), "png", path.toLocal8Bit().data());
+}
+void QGVScene::exportAsDotFormat(const QString &path){
+    gvRenderFilename(_context->context(), _graph->graph(), "canon", path.toLocal8Bit().data());
 }
 
 void QGVScene::clear()
@@ -258,7 +262,7 @@ void QGVScene::clear()
     _nodes.clear();
     _edges.clear();
     _subGraphs.clear();
-    QGraphicsScene::clear();
+//    QGraphicsScene::clear();
 }
 
 void QGVScene::nodeHoverEnter(QGVNode *node)
