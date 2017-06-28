@@ -34,7 +34,7 @@ class QGVCORE_EXPORT QGVEdge : public QGraphicsItem
 {
 public:
     ~QGVEdge();
-
+    QGVEdge(QGVEdgePrivate *edge, QGVScene *scene);
     QString label() const;
     QRectF boundingRect() const;
     QPainterPath shape() const;
@@ -45,8 +45,11 @@ public:
 
     void setAttribute(const QString &name, const QString &value);
     QString getAttribute(const QString &name) const;
-
+    QVector<QPointF> getPos();
+    void setPosition(QVector<QPointF> pts, bool lock = false);
+    void translate(QPointF diff);
     void updateLayout();
+    bool lockPosition();
 
     enum { Type = UserType + 3 };
     int type() const
@@ -55,8 +58,6 @@ public:
     }
 
 private:
-    QGVEdge(QGVEdgePrivate *edge, QGVScene *scene);
-
     QPolygonF toArrow(const QLineF &normal) const;
 
     friend class QGVScene;

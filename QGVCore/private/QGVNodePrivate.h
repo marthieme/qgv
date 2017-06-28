@@ -13,6 +13,8 @@ public:
     
     Agraph_t* graph() const;
 
+    Agraph_t *parent() const;
+
 private:
     Agnode_t* _node;
     Agraph_t* _parent;

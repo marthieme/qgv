@@ -23,10 +23,40 @@ License along with this library.
 #include <QDebug>
 #include <QPainter>
 
-QGVNode::QGVNode(QGVNodePrivate *node, QGVScene *scene): _scene(scene), _node(node)
+QGVNode::QGVNode(QGVNodePrivate *node, QGVScene *scene) : _scene(scene), _node(node)
 {
     setFlag(QGraphicsItem::ItemIsSelectable, true);
     setAcceptHoverEvents(true);
+}
+
+QList<QGVEdge *> QGVNode::getEdges() const
+{
+    return edges;
+}
+
+void QGVNode::addEdge(QGVEdge *value)
+{
+    edges.append(value);
+}
+
+void QGVNode::removeEdge(QGVEdge *value)
+{
+    edges.removeOne(value);
+}
+
+QPointF QGVNode::getPos()
+{
+    QString pos = getAttribute("pos", "");
+    if(pos.isEmpty())
+        return QPointF();
+
+    QStringList l = pos.split(",");
+    Q_ASSERT(l.size() == 2);
+    if(l.size() != 2) qDebug() << "I have a bad feeling about this.";
+    l[0] = l[0].replace("!", "");
+    l[1] = l[1].replace("!", "");
+    QPointF pt(l.at(0).toDouble(), l.at(1).toDouble());
+    return pt;
 }
 
 void QGVNode::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
@@ -79,18 +109,18 @@ void QGVNode::paint(QPainter * painter, const QStyleOptionGraphicsItem *, QWidge
 
     painter->setPen(QGVCore::toColor(getAttribute("labelfontcolor")));
 
-    const QRectF rect = boundingRect().adjusted(2,2,-2,-2); //Margin
+    const QRectF rect = boundingRect().adjusted(2, 2, -2, -2); //Margin
     if(_icon.isNull())
     {
-        painter->drawText(rect, Qt::AlignCenter , QGVNode::label());
+        painter->drawText(rect, Qt::AlignCenter, QGVNode::label());
     }
     else
     {
-        painter->drawText(rect.adjusted(0,0,0, -rect.height()*2/3), Qt::AlignCenter , QGVNode::label());
+        painter->drawText(rect.adjusted(0, 0, 0, -rect.height() * 2 / 3), Qt::AlignCenter, QGVNode::label());
 
-        const QRectF img_rect = rect.adjusted(0, rect.height()/3,0, 0);
+        const QRectF img_rect = rect.adjusted(0, rect.height() / 3, 0, 0);
         QImage img = _icon.scaled(img_rect.size().toSize(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
-        painter->drawImage(img_rect.topLeft() + QPointF((img_rect.width() - img.rect().width())/2, 0), img);
+        painter->drawImage(img_rect.topLeft() + QPointF((img_rect.width() - img.rect().width()) / 2, 0), img);
     }
     painter->restore();
 }
@@ -109,6 +139,21 @@ QString QGVNode::getAttribute(const QString &name, const QString defaultValue) c
     return defaultValue;
 }
 
+void QGVNode::setPosition(QPointF pos, bool lock)
+{
+
+    setAttribute("pos", QString::number(pos.x()) + "," + QString::number(pos.y()));
+    if(lock)
+        setAttribute("pin", "true");
+}
+
+void QGVNode::lockPosition()
+{
+    pointf pos = ND_coord(_node->node());
+    setAttribute("pos", QString::number(pos.x) + "," + QString::number(pos.y));
+    setAttribute("pin", "true");
+}
+
 void QGVNode::setIcon(const QImage &icon)
 {
     _icon = icon;
@@ -117,8 +162,8 @@ void QGVNode::setIcon(const QImage &icon)
 void QGVNode::updateLayout()
 {
     prepareGeometryChange();
-    qreal width = ND_width(_node->node())*DotDefaultDPI;
-    qreal height = ND_height(_node->node())*DotDefaultDPI;
+    qreal width = ND_width(_node->node()) * DotDefaultDPI;
+    qreal height = ND_height(_node->node()) * DotDefaultDPI;
 
     //Node Position (center)
     qreal gheight = QGVCore::graphHeight(_scene->_graph->graph());

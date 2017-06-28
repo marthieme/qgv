@@ -19,3 +19,8 @@ Agraph_t* QGVNodePrivate::graph() const
 {
     return _parent;
 }
+
+Agraph_t *QGVNodePrivate::parent() const
+{
+    return _parent;
+}

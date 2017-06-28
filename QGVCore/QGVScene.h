@@ -20,6 +20,7 @@ License along with this library.
 
 #include "qgv.h"
 #include <QGraphicsScene>
+#include <private/QGVCore.h>
 
 class QGVNode;
 class QGVEdge;
@@ -47,7 +48,7 @@ public:
     QGVNode* addNode(const QString& label);
     QGVEdge* addEdge(QGVNode* source, QGVNode* target, const QString& label=QString());
     QGVSubGraph* addSubGraph(const QString& name, bool cluster=true);
-
+    void testPack();
     void deleteNode(QGVNode *node);
     void deleteEdge(QGVEdge *edge);
     void deleteSubGraph(QGVSubGraph *subgraph);
@@ -56,6 +57,7 @@ public:
 
     void loadLayout(const QString &text);
     void applyLayout(const QString &engine = "dot");
+    void layoutGraphWithSubgraphs(const QString &engine1 = "neato",const QString &engine2 = "fdp");
     void clear();
 
     void nodeHoverEnter(QGVNode *node);
@@ -63,7 +65,21 @@ public:
 
     void renderPng(const QString &path);
     void exportAsDotFormat(const QString &path);
-    void freeLayout();
+    void freeLayout(bool removeGraphicsItems = true);
+
+    void testPack2();
+    void reRouteEdges();
+    QString getGraphAttribute(const QString &name, const QString defaultValue) const;
+    void renderGraph(const QString &format, FILE *out = NULL);
+    void renderData(const QString &format, char **result, unsigned int *length);
+    void loadRenderData(char **result, unsigned int *length);
+    QString versionInfo();
+
+    QList<QGVNode *> getNodes() const;
+
+    QList<QGVEdge *> getEdges() const;
+
+    QList<QGVSubGraph *> getSubGraphs() const;
 
 signals:
 
@@ -93,6 +109,7 @@ private:
     friend class QGVEdge;
     friend class QGVSubGraph;
 
+    Agdesc_t descriptor;
     QGVGvcPrivate *_context;
     QGVGraphPrivate *_graph;
     //QFont _font;
@@ -100,6 +117,8 @@ private:
     QList<QGVNode*> _nodes;
     QList<QGVEdge*> _edges;
     QList<QGVSubGraph*> _subGraphs;
+
+    QGraphicsTextItem *label = 0;
 };
 
 #endif // QGVSCENE_H

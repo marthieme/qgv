@@ -33,15 +33,17 @@ class QGVNodePrivate;
 class QGVCORE_EXPORT QGVNode : public QGraphicsItem
 {
 public:
+    QGVNode(QGVNodePrivate* node, QGVScene *scene);
     ~QGVNode();
 
     QString label() const;
     void setLabel(const QString &label);
-
     QRectF boundingRect() const;
     void paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget = 0);
     void setAttribute(const QString &label, const QString &value);
     QString getAttribute(const QString &name, const QString defaultValue = QString()) const;
+    void setPosition(QPointF pos, bool lock = false);
+    void lockPosition();
 
     void setIcon(const QImage &icon);
 
@@ -52,10 +54,15 @@ public:
     }
     void updateLayout();
 
+    QList<QGVEdge *> getEdges() const;
+    void addEdge(QGVEdge *value);
+    void removeEdge(QGVEdge *value);
+
+    QPointF getPos();
 private:
     friend class QGVScene;
     friend class QGVSubGraph;
-    QGVNode(QGVNodePrivate* node, QGVScene *scene);
+
 
     // Not implemented in QGVNode.cpp
     //		QPainterPath makeShape(Agnode_t* node) const;
@@ -69,6 +76,7 @@ private:
     QGVScene *_scene;
     QGVNodePrivate* _node;
 
+    QList<QGVEdge *> edges;
 
     // QGraphicsItem interface
 protected:

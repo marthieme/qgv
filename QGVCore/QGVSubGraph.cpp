@@ -24,9 +24,10 @@ License along with this library.
 #include <QDebug>
 #include <QPainter>
 
-QGVSubGraph::QGVSubGraph(QGVGraphPrivate *subGraph, QGVScene *scene):  _scene(scene), _sgraph(subGraph)
+QGVSubGraph::QGVSubGraph(QGVGraphPrivate *subGraph, QGVScene *scene) :  _scene(scene), _sgraph(subGraph)
 {
-    //setFlag(QGraphicsItem::ItemIsSelectable, true);
+    setFlag(QGraphicsItem::ItemIsMovable, true);
+    setFlag(QGraphicsItem::ItemIsSelectable, true);
 }
 
 QGVSubGraph::~QGVSubGraph()
@@ -45,7 +46,7 @@ QGVNode *QGVSubGraph::addNode(const QString &label)
     Agnode_t *node = agnode(_sgraph->graph(), NULL, TRUE);
     if(node == NULL)
     {
-        qWarning()<<"Invalid sub node :"<<label;
+        qWarning() << "Invalid sub node :" << label;
         return 0;
     }
     agsubnode(_sgraph->graph(), node, TRUE);
@@ -68,7 +69,7 @@ QGVSubGraph *QGVSubGraph::addSubGraph(const QString &name, bool cluster)
 
     if(sgraph == NULL)
     {
-        qWarning()<<"Invalid subGraph :"<<name;
+        qWarning() << "Invalid subGraph :" << name;
         return 0;
     }
 
@@ -80,13 +81,12 @@ QGVSubGraph *QGVSubGraph::addSubGraph(const QString &name, bool cluster)
 
 QRectF QGVSubGraph::boundingRect() const
 {
-    return QRectF(0,0, _width, _height);
+    return QRectF(0, 0, _width, _height);
 }
 
 void QGVSubGraph::paint(QPainter * painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
     painter->save();
-
     painter->setPen(_pen);
     painter->setBrush(_brush);
 
@@ -101,16 +101,143 @@ void QGVSubGraph::setAttribute(const QString &name, const QString &value)
     agsafeset(_sgraph->graph(), name.toLocal8Bit().data(), value.toLocal8Bit().data(), empty);
 }
 
-QString QGVSubGraph::getAttribute(const QString &name) const
+QString QGVSubGraph::getAttribute(const QString &name, const QString &defaultValue) const
 {
     char* value = agget(_sgraph->graph(), name.toLocal8Bit().data());
     if(value)
         return value;
-    return QString();
+    return defaultValue;
+}
+
+void QGVSubGraph::getPen(const QString &style){
+    if(style == "solid")
+        _pen.setStyle(Qt::SolidLine);
+    if(style == "dashed")
+        _pen.setStyle(Qt::DashLine);
+    if(style == "dotted")
+    {
+        _pen.setStyle(Qt::DotLine);
+        _pen.setJoinStyle(Qt::RoundJoin);
+        _pen.setCapStyle(Qt::RoundCap);
+    }
+    if(style == "bold") {
+        _pen.setWidth(4);
+    } else {
+        _pen.setWidth(1);
+    }
+}
+
+QVariant QGVSubGraph::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
+{
+    if(change == QGraphicsItem::ItemPositionHasChanged && !changeActive)
+    {
+        changeActive = true;
+
+        boxf box = GD_bb(_sgraph->graph());
+        if(((box.UR.x - box.LL.x) == _width) && ((box.UR.y - box.LL.y) == _height)) //only works one time
+        {
+//        //SubGraph box
+//        boxf box = GD_bb(_sgraph->graph());
+//        pointf p1 = box.UR;
+//        pointf p2 = box.LL;
+//        _width = p1.x - p2.x;
+//        _height = p1.y - p2.y;
+
+//        qreal gheight = QGVCore::graphHeight(_scene->_graph->graph());
+//        setPos(p2.x, gheight - p1.y);
+
+            qDebug() << "box: LL:" << box.LL.x << "," << box.LL.y << "UR:" << box.UR.x << "," << box.UR.y;
+            qDebug() << "height (set): " << _height;
+            qDebug() << "height (computed): " << box.UR.y - box.LL.y;
+            QPointF newPos = value.toPointF();
+
+            QPointF gvLL;
+            QPointF gvUR;
+            QPointF diff = lastPos - newPos;
+
+            //alte version:
+//        QPointF gvDiff;
+//        gvLL.setX(newPos.x());
+//        gvLL.setY(box.LL.y - diff.y());
+//        gvUR.setX(newPos.x() + _width);
+//        gvUR.setY(box.UR.y - diff.y());
+//        gvDiff.setX(box.LL.x - gvLL.x());
+//        gvDiff.setY(box.LL.y - gvLL.y());
+
+            //neue version
+            QPointF gvDiff;
+            gvLL.setX(newPos.x());
+            gvLL.setY(box.LL.y + diff.y() - (_height / 2.) );
+            gvUR.setX(newPos.x() + _width);
+            gvUR.setY(box.UR.y + diff.y() + (_height / 2.) );
+            qDebug() << "new box: LL:" << gvLL << "UR:" << gvUR;
+            gvDiff.setX(box.LL.x - gvLL.x());
+            gvDiff.setY(box.LL.y - gvLL.y());
+
+            //set bounding box for graphviz
+            setAttribute("bb", QString::number(gvLL.x(), 'G', 8) + "," + QString::number(gvLL.y(), 'G', 8) + "," + QString::number(gvUR.x(), 'G', 8) + "," + QString::number(gvUR.y(), 'f', 8));
+
+            //change label position
+            textlabel_t *label = GD_label(_sgraph->graph());
+            QString lp = getAttribute("lp", "");
+            if(!lp.isEmpty())
+            {
+                QStringList lpStrL = lp.split(",");
+                bool ok = true;
+                bool ok1;
+                double lpx1 = lpStrL.at(0).toDouble(&ok1);
+                ok &= ok1;
+                double lpy1 = lpStrL.at(1).toDouble(&ok1);
+                ok &= ok1;
+                if(ok) {
+                    double lpx = lpx1 + gvDiff.x();
+                    double lpy = lpy1 + gvDiff.y();
+
+
+                    lp = QString::number(lpx, 'G', 8) + "!," + QString::number(lpy, 'G', 8);
+                    agset(_sgraph->graph(), QString("lp").toLocal8Bit().data(),  lp.toLocal8Bit().data());
+                }
+                label->pos;
+            }
+
+
+            qDebug() << "###############";
+            qDebug() << QString::number(gvLL.x()) + "," + QString::number(gvLL.y()) + "," + QString::number(gvUR.x()) + "," + QString::number(gvUR.y());
+//        QSet<QGVEdge *> edgesWithinCluster;
+            foreach (QGVNode * n, _nodes) {
+                QPointF nPos = n->getPos();
+                n->setPosition(nPos, true); //test
+//            QPointF newnPos =  nPos + gvDiff;
+//            n->setPosition(newnPos, true);
+
+//            foreach (QGVEdge * e, n->edges) {
+//                if(edgesWithinCluster.contains(e))
+//                {
+//                    e->translate(gvDiff);
+//                } else {
+//                    edgesWithinCluster.insert(e); //edges that are inserted but not locked, are edges that connect to clusters
+//                }
+//            }
+            }
+            lastPos = newPos;
+            _scene->applyLayout("nop");
+
+//        _scene->reRouteEdges();
+            _scene->freeLayout(false);
+            qDebug() << "done! bb:" << getAttribute("bb", "not set");
+            qDebug() << "###############";
+        }
+        changeActive = false;
+    }
+    return value;
 }
 
 void QGVSubGraph::updateLayout()
 {
+    const bool sendChanges = flags().testFlag(QGraphicsItem::ItemSendsGeometryChanges);
+    qDebug() << "+#+#+#+#+#" << sendChanges;
+    if(sendChanges)
+        setFlag(QGraphicsItem::ItemSendsGeometryChanges, false);
     prepareGeometryChange();
 
     //SubGraph box
@@ -122,12 +249,13 @@ void QGVSubGraph::updateLayout()
 
     qreal gheight = QGVCore::graphHeight(_scene->_graph->graph());
     setPos(p2.x, gheight - p1.y);
-
-    _pen.setWidth(1);
-    _brush.setStyle(QGVCore::toBrushStyle(getAttribute("style")));
-    _brush.setColor(QGVCore::toColor(getAttribute("fillcolor")));
-    _pen.setColor(QGVCore::toColor(getAttribute("color")));
-
+    lastPos.setX(p2.x);
+    lastPos.setY(gheight - p1.y);
+//    _pen.setWidth(1);
+//    _brush.setStyle(QGVCore::toBrushStyle(getAttribute("style", "filled")));
+//    _brush.setColor(QGVCore::toColor(getAttribute("fillcolor", "gray")));
+//    _pen.setColor(QGVCore::toColor(getAttribute("color", "black")));
+    getPen(getAttribute("style", "solid"));
     //SubGraph label
     textlabel_t *xlabel = GD_label(_sgraph->graph());
     if(xlabel)
@@ -135,5 +263,9 @@ void QGVSubGraph::updateLayout()
         _label = xlabel->text;
         _label_rect.setSize(QSize(xlabel->dimen.x, xlabel->dimen.y));
         _label_rect.moveCenter(QGVCore::toPoint(xlabel->pos, QGVCore::graphHeight(_scene->_graph->graph())) - pos());
+        qDebug() << "update subgraph" << _label << ": BB: LL:" << box.LL.x << "," << box.LL.y << "UR:" << box.UR.x << "," << box.UR.y;
     }
+
+    if(sendChanges)
+        setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
 }

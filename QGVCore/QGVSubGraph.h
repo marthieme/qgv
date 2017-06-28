@@ -21,6 +21,7 @@ License along with this library.
 #include "qgv.h"
 #include <QGraphicsItem>
 #include <QPen>
+#include "geom.h"
 
 class QGVNode;
 class QGVEdge;
@@ -44,7 +45,7 @@ public:
     QRectF boundingRect() const;
     void paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget = 0);
     void setAttribute(const QString &name, const QString &value);
-    QString getAttribute(const QString &name) const;
+    QString getAttribute(const QString &name,const QString &defaultValue = "") const;
     void updateLayout();
 
     enum { Type = UserType + 4 };
@@ -63,11 +64,20 @@ private:
     double _height, _width;
     QPen _pen;
     QBrush _brush;
-
+    boxf box;
     QString _label;
     QRectF _label_rect;
 
     QList<QGVNode*> _nodes;
+    void getPen(const QString &style);
+
+    QPointF lastPos;
+
+    bool changeActive = false;
+
+    // QGraphicsItem interface
+protected:
+    QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 };
 
 #endif // QGVSUBGRAPH_H

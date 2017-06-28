@@ -39,7 +39,7 @@ QPointF QGVCore::toPoint(point p, qreal gheight)
 QPointF QGVCore::centerToOrigin(const QPointF &p, qreal width, qreal height)
 {
     //L'origine d'un objet est le centre dans graphViz et du haut gauche pour Qt !
-    return QPointF(p.x() - width/2, p.y() - height/2);
+    return QPointF(p.x() - width / 2, p.y() - height / 2);
 }
 
 QPolygonF QGVCore::toPolygon(const polygon_t *poly, qreal width, qreal height)
@@ -52,7 +52,7 @@ QPolygonF QGVCore::toPolygon(const polygon_t *poly, qreal width, qreal height)
 
     QPolygonF polygon;
     for (int side = 0; side < sides; side++)
-        polygon.append(QPointF(vertices[side].x + width/2, vertices[side].y + height/2));
+        polygon.append(QPointF(vertices[side].x + width / 2, vertices[side].y + height / 2));
     return polygon;
 }
 
@@ -70,7 +70,7 @@ QPainterPath QGVCore::toPath(const char *type, const polygon_t *poly, qreal widt
         path.addPolygon(polygon);
     }
     else if ((strcmp(type, "ellipse") == 0) ||
-            (strcmp(type, "circle") == 0))
+             (strcmp(type, "circle") == 0))
     {
         QPolygonF polygon = toPolygon(poly, width, height);
         path.addEllipse(QRectF(polygon[0], polygon[1]));
@@ -85,7 +85,8 @@ QPainterPath QGVCore::toPath(const char *type, const polygon_t *poly, qreal widt
 QPainterPath QGVCore::toPath(const splines *spl, qreal gheight)
 {
     QPainterPath path;
-    if((spl->list != 0) && (spl->list->size%3 == 1))
+//    qDebug() << (spl != 0);
+    if((spl != 0) && (spl->list != 0) && (spl->list->size % 3 == 1))
     {
         bezier bez = spl->list[0];
         //If there is a starting point, draw a line from it to the first curve point
@@ -98,8 +99,8 @@ QPainterPath QGVCore::toPath(const splines *spl, qreal gheight)
             path.moveTo(toPoint(bez.list[0], gheight));
 
         //Loop over the curve points
-        for(int i=1; i<bez.size; i+=3)
-            path.cubicTo(toPoint(bez.list[i], gheight), toPoint(bez.list[i+1], gheight), toPoint(bez.list[i+2], gheight));
+        for(int i = 1; i < bez.size; i += 3)
+            path.cubicTo(toPoint(bez.list[i], gheight), toPoint(bez.list[i + 1], gheight), toPoint(bez.list[i + 2], gheight));
 
         //If there is an ending point, draw a line to it
         if(bez.eflag)
@@ -117,7 +118,7 @@ Qt::BrushStyle QGVCore::toBrushStyle(const QString &style)
 
 Qt::PenStyle QGVCore::toPenStyle(const QString &style)
 {
-    if(style =="dashed")
+    if(style == "dashed")
         return Qt::DashLine;
     else if(style == "dotted")
         return Qt::DotLine;
