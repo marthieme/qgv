@@ -1,20 +1,21 @@
 /***************************************************************
-QGVCore
-Copyright (c) 2014, Bergont Nicolas, All rights reserved.
+   QGVCore
+   Copyright (c) 2014, Bergont Nicolas, All rights reserved.
 
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 3.0 of the License, or (at your option) any later version.
+   This library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 3.0 of the License, or (at your option) any later version.
 
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-Lesser General Public License for more details.
+   This library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+   Lesser General Public License for more details.
 
-You should have received a copy of the GNU Lesser General Public
-License along with this library.
+   You should have received a copy of the GNU Lesser General Public
+   License along with this library.
 ***************************************************************/
+#include "QGVEdge.h"
 #include "QGVSubGraph.h"
 #include <QGVCore.h>
 #include <QGVScene.h>
@@ -146,9 +147,6 @@ QVariant QGVSubGraph::itemChange(QGraphicsItem::GraphicsItemChange change, const
 //        qreal gheight = QGVCore::graphHeight(_scene->_graph->graph());
 //        setPos(p2.x, gheight - p1.y);
 
-            qDebug() << "box: LL:" << box.LL.x << "," << box.LL.y << "UR:" << box.UR.x << "," << box.UR.y;
-            qDebug() << "height (set): " << _height;
-            qDebug() << "height (computed): " << box.UR.y - box.LL.y;
             QPointF newPos = value.toPointF();
 
             QPointF gvLL;
@@ -170,7 +168,6 @@ QVariant QGVSubGraph::itemChange(QGraphicsItem::GraphicsItemChange change, const
             gvLL.setY(box.LL.y + diff.y() - (_height / 2.) );
             gvUR.setX(newPos.x() + _width);
             gvUR.setY(box.UR.y + diff.y() + (_height / 2.) );
-            qDebug() << "new box: LL:" << gvLL << "UR:" << gvUR;
             gvDiff.setX(box.LL.x - gvLL.x());
             gvDiff.setY(box.LL.y - gvLL.y());
 
@@ -200,10 +197,7 @@ QVariant QGVSubGraph::itemChange(QGraphicsItem::GraphicsItemChange change, const
                 label->pos;
             }
 
-
-            qDebug() << "###############";
-            qDebug() << QString::number(gvLL.x()) + "," + QString::number(gvLL.y()) + "," + QString::number(gvUR.x()) + "," + QString::number(gvUR.y());
-//        QSet<QGVEdge *> edgesWithinCluster;
+            //        QSet<QGVEdge *> edgesWithinCluster;
             foreach (QGVNode * n, _nodes) {
                 QPointF nPos = n->getPos();
                 n->setPosition(nPos, true); //test
@@ -224,8 +218,6 @@ QVariant QGVSubGraph::itemChange(QGraphicsItem::GraphicsItemChange change, const
 
 //        _scene->reRouteEdges();
             _scene->freeLayout(false);
-            qDebug() << "done! bb:" << getAttribute("bb", "not set");
-            qDebug() << "###############";
         }
         changeActive = false;
     }
@@ -235,7 +227,7 @@ QVariant QGVSubGraph::itemChange(QGraphicsItem::GraphicsItemChange change, const
 void QGVSubGraph::updateLayout()
 {
     const bool sendChanges = flags().testFlag(QGraphicsItem::ItemSendsGeometryChanges);
-    qDebug() << "+#+#+#+#+#" << sendChanges;
+
     if(sendChanges)
         setFlag(QGraphicsItem::ItemSendsGeometryChanges, false);
     prepareGeometryChange();
@@ -263,7 +255,6 @@ void QGVSubGraph::updateLayout()
         _label = xlabel->text;
         _label_rect.setSize(QSize(xlabel->dimen.x, xlabel->dimen.y));
         _label_rect.moveCenter(QGVCore::toPoint(xlabel->pos, QGVCore::graphHeight(_scene->_graph->graph())) - pos());
-        qDebug() << "update subgraph" << _label << ": BB: LL:" << box.LL.x << "," << box.LL.y << "UR:" << box.UR.x << "," << box.UR.y;
     }
 
     if(sendChanges)

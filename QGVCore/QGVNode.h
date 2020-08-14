@@ -59,6 +59,8 @@ public:
     void removeEdge(QGVEdge *value);
 
     QPointF getPos();
+    double getWidth();
+    double getHeight();
 private:
     friend class QGVScene;
     friend class QGVSubGraph;

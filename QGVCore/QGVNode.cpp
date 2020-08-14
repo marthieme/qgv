@@ -1,19 +1,19 @@
 /***************************************************************
-QGVCore
-Copyright (c) 2014, Bergont Nicolas, All rights reserved.
+   QGVCore
+   Copyright (c) 2014, Bergont Nicolas, All rights reserved.
 
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 3.0 of the License, or (at your option) any later version.
+   This library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 3.0 of the License, or (at your option) any later version.
 
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-Lesser General Public License for more details.
+   This library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+   Lesser General Public License for more details.
 
-You should have received a copy of the GNU Lesser General Public
-License along with this library.
+   You should have received a copy of the GNU Lesser General Public
+   License along with this library.
 ***************************************************************/
 #include <QGVNode.h>
 #include <QGVCore.h>
@@ -29,7 +29,7 @@ QGVNode::QGVNode(QGVNodePrivate *node, QGVScene *scene) : _scene(scene), _node(n
     setAcceptHoverEvents(true);
 }
 
-QList<QGVEdge *> QGVNode::getEdges() const
+QList<QGVEdge*> QGVNode::getEdges() const
 {
     return edges;
 }
@@ -52,7 +52,6 @@ QPointF QGVNode::getPos()
 
     QStringList l = pos.split(",");
     Q_ASSERT(l.size() == 2);
-    if(l.size() != 2) qDebug() << "I have a bad feeling about this.";
     l[0] = l[0].replace("!", "");
     l[1] = l[1].replace("!", "");
     QPointF pt(l.at(0).toDouble(), l.at(1).toDouble());
@@ -90,7 +89,7 @@ QRectF QGVNode::boundingRect() const
     return _path.boundingRect();
 }
 
-void QGVNode::paint(QPainter * painter, const QStyleOptionGraphicsItem *, QWidget *)
+void QGVNode::paint(QPainter *painter, const QStyleOptionGraphicsItem*, QWidget*)
 {
     painter->save();
 
@@ -119,7 +118,7 @@ void QGVNode::paint(QPainter * painter, const QStyleOptionGraphicsItem *, QWidge
         painter->drawText(rect.adjusted(0, 0, 0, -rect.height() * 2 / 3), Qt::AlignCenter, QGVNode::label());
 
         const QRectF img_rect = rect.adjusted(0, rect.height() / 3, 0, 0);
-        QImage img = _icon.scaled(img_rect.size().toSize(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        QImage       img = _icon.scaled(img_rect.size().toSize(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
         painter->drawImage(img_rect.topLeft() + QPointF((img_rect.width() - img.rect().width()) / 2, 0), img);
     }
     painter->restore();
@@ -133,7 +132,7 @@ void QGVNode::setAttribute(const QString &name, const QString &value)
 
 QString QGVNode::getAttribute(const QString &name, const QString defaultValue) const
 {
-    char* value = agget(_node->node(), name.toLocal8Bit().data());
+    char*value = agget(_node->node(), name.toLocal8Bit().data());
     if(value)
         return value;
     return defaultValue;
@@ -181,4 +180,12 @@ void QGVNode::updateLayout()
     _pen.setColor(QGVCore::toColor(getAttribute("color")));
 
     setToolTip(getAttribute("tooltip"));
+}
+
+double QGVNode::getWidth(){
+    return ND_width(_node->node()) * DotDefaultDPI;
+}
+
+double QGVNode::getHeight(){
+    return ND_height(_node->node()) * DotDefaultDPI;
 }
